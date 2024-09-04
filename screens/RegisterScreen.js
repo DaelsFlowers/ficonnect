@@ -4,6 +4,7 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { setDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { auth, firestore } from '../firebaseConfig'; 
 import logo from '../assets/ficonnect_logo2.png';
+import { sendEmailVerification } from "firebase/auth";
 
 export default function RegisterScreen({ navigation }) {
     const [name, setName] = useState('');
@@ -19,12 +20,12 @@ export default function RegisterScreen({ navigation }) {
             setErrorMessage('Todos los campos son obligatorios');
             return;
         }
-
+    
         if (password !== confirmPassword) {
             setErrorMessage('Las contraseñas no coinciden');
             return;
         }
-
+    
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
@@ -33,12 +34,14 @@ export default function RegisterScreen({ navigation }) {
                 email,
                 createdAt: serverTimestamp(),
             });
-
-            navigation.navigate('Login');
+            
+            await user.sendEmailVerification();
+            navigation.navigate('ConfirmEmail');
         } catch (error) {
             setErrorMessage(error.message);
         }
     };
+    
 
     return (
         <View style={styles.container}>
