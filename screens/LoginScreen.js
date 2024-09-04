@@ -13,10 +13,17 @@ export default function LoginScreen({ navigation }) {
     const handleLogin = () => {
         signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
-                navigation.navigate('Home');
+                const user = userCredential.user;
+                if (user.emailVerified) {
+                    navigation.navigate('Home');
+                } else {
+                    navigation.navigate('ConfirmEmail');
+                }
             })
             .catch((error) => setErrorMessage(error.message));
     };
+    
+    
 
     return (
         <View style={styles.container}>
