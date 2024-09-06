@@ -35,19 +35,18 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator>
         {user ? (
-            user.emailVerified ? (
-              <Stack.Screen name="Home" component={HomeScreen} options={{headerShown:false}} />
-            ) : (
-              <Stack.Screen name="ConfirmEmail" component={ConfirmEmailScreen} options={{headerShown:false}} />
-            )
-        ) : (
-            <>
-              <Stack.Screen name="Login" component={LoginScreen} options={{headerShown:false}}  />
-              <Stack.Screen name="Register" component={RegisterScreen} options={{headerShown:false}}  />
-            </>
-        )}
-</Stack.Navigator>
+          <>
+            <Stack.Screen name="ConfirmEmail" component={ConfirmEmailScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
 
+          </>
+        ) : (
+          <>
+            <Stack.Screen name="Login" component={LoginScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="Register" component={RegisterScreen} options={{ headerShown: false }} />
+          </>
+        )}
+      </Stack.Navigator>
     </NavigationContainer>
   );
 }
