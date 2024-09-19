@@ -3,8 +3,11 @@ import { View, TextInput, Text, StyleSheet, TouchableOpacity, Image } from 'reac
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { auth } from '../firebaseConfig';
 import logo from '../assets/ficonnect_logo2.png';
+import { useTranslation } from 'react-i18next';
+
 
 export default function LoginScreen({ navigation }) {
+    const { t } = useTranslation();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
@@ -31,10 +34,10 @@ export default function LoginScreen({ navigation }) {
                 <Image source={logo} style={styles.logo} />
             </View>
             <View style={styles.formContainer}>
-                <Text style={styles.title}>INICIAR SESION</Text>
+                <Text style={styles.title}>{t('Login')} </Text>
                 <View style={styles.form}>
                     <View>
-                        <Text>Correo</Text>
+                        <Text>{t('Email')}</Text>
                         <TextInput
                             value={email}
                             onChangeText={setEmail}
@@ -44,7 +47,7 @@ export default function LoginScreen({ navigation }) {
                         />
                     </View>
                     <View style={styles.passwordContainer}>
-                        <Text>Contraseña</Text>
+                        <Text>{t('PASS')}</Text>
                         <View style={styles.passwordInputContainer}>
                             <TextInput
                                 value={password}
@@ -64,12 +67,12 @@ export default function LoginScreen({ navigation }) {
                     </View>
                     {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
                     <TouchableOpacity style={styles.button} onPress={handleLogin}>
-                        <Text style={styles.buttonText}>Login</Text>
+                        <Text style={styles.buttonText}>{t('Login')}</Text>
                     </TouchableOpacity>
                     <View style={styles.linkContainer}>
-                        <Text style={styles.linkText}>NO TIENES CUENTA? </Text>
+                        <Text style={styles.linkText}>{t('DONTACC')} </Text>
                         <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-                            <Text style={styles.linkTextB}>Register</Text>
+                            <Text style={styles.linkTextB}>{t('Register')}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
