@@ -3,8 +3,11 @@ import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from 'rea
 import { signOut } from 'firebase/auth';
 import { auth, firestore } from '../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
+import { useTranslation } from 'react-i18next';
+
 
 export default function HomeScreen({ navigation }) {
+  const { t } = useTranslation();
   const [userName, setUserName] = useState('');
   const [loading, setLoading] = useState(true);
 
@@ -48,10 +51,10 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.welcomeText}>¡Bienvenido, {userName}!</Text>
-      <Text style={styles.infoText}>Has iniciado sesión con éxito.</Text>
+      <Text style={styles.welcomeText}>{t('Welcome')} {userName}!</Text>
+      <Text style={styles.infoText}>{t('succeslog')}</Text>
       <TouchableOpacity style={styles.signOutButton} onPress={handleSignOut}>
-        <Text style={styles.signOutButtonText}>Cerrar sesión</Text>
+        <Text style={styles.signOutButtonText}>{t('Logout')}</Text>
       </TouchableOpacity>
     </View>
   );
