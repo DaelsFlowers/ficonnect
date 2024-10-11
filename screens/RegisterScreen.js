@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { View, TextInput, Text, StyleSheet, TouchableOpacity, Image, Pressable, Picker } from 'react-native';
+import { View, TextInput, Text, StyleSheet, TouchableOpacity, Image, Pressable } from 'react-native';
+import { Picker } from '@react-native-picker/picker';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { setDoc, doc, serverTimestamp } from 'firebase/firestore';
-import { auth, firestore } from '../firebaseConfig'; 
+import { auth, firestore } from '../firebaseConfig';
 import logo from '../assets/ficonnect_logo2.png';
 import { sendEmailVerification } from "firebase/auth";
 import { useTranslation } from 'react-i18next';
@@ -23,29 +24,33 @@ export default function RegisterScreen({ navigation }) {
             setErrorMessage(t('allInputs'));
             return;
         }
-    
+
         if (password !== confirmPassword) {
             setErrorMessage(t('notPass'));
             return;
         }
-    
+
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
+
+            // Guardar información del usuario en Firestore
             await setDoc(doc(firestore, 'users', user.uid), {
                 name,
                 email,
-                role, 
+                role,
                 createdAt: serverTimestamp(),
             });
-            
-            await user.sendEmailVerification();
+
+            // Enviar correo de verificación
+            await sendEmailVerification(user); // Corregido aquí
             navigation.navigate('ConfirmEmail');
         } catch (error) {
             setErrorMessage(error.message);
         }
     };
-    
+
+
 
     return (
         <View style={styles.container}>
@@ -81,8 +86,8 @@ export default function RegisterScreen({ navigation }) {
                             secureTextEntry={!showPassword}
                             style={styles.input}
                         />
-                        <Pressable 
-                            onPress={() => setShowPassword(!showPassword)} 
+                        <Pressable
+                            onPress={() => setShowPassword(!showPassword)}
                             style={styles.eyeIcon}
                         >
                             <Text>{showPassword ? 'X' : 'O'}</Text>
@@ -98,8 +103,8 @@ export default function RegisterScreen({ navigation }) {
                             secureTextEntry={!showConfirmPassword}
                             style={styles.input}
                         />
-                        <Pressable 
-                            onPress={() => setShowConfirmPassword(!showConfirmPassword)} 
+                        <Pressable
+                            onPress={() => setShowConfirmPassword(!showConfirmPassword)}
                             style={styles.eyeIcon}
                         >
                             <Text>{showConfirmPassword ? 'X' : 'O'}</Text>
@@ -107,18 +112,18 @@ export default function RegisterScreen({ navigation }) {
                     </View>
                 </View>
 
-                {/* Dropdown para seleccionar el rol */}
                 <View style={styles.inputContainer}>
                     <Text style={styles.label}>{t('rol')}</Text>
                     <Picker
                         selectedValue={role}
                         style={styles.picker}
-                        onValueChange={(itemValue) => setRole(itemValue)}
+                        onValueChange={(itemValue) => setRole(itemValue)} // Manejador de cambio
                     >
                         <Picker.Item label={t('user1')} value="user" />
                         <Picker.Item label={t('user2')} value="admin" />
                     </Picker>
                 </View>
+
 
                 {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
                 <TouchableOpacity style={styles.button} onPress={handleRegister}>

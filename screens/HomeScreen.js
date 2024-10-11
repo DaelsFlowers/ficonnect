@@ -5,12 +5,12 @@ import { auth, firestore } from '../firebaseConfig';
 import { doc, getDoc } from 'firebase/firestore';
 import { useTranslation } from 'react-i18next';
 
-
 export default function HomeScreen({ navigation }) {
   const { t } = useTranslation();
   const [userName, setUserName] = useState('');
-  const [userRole, setUserRole] = useState('');  // Estado para almacenar el rol del usuario
+  const [userRole, setUserRole] = useState('');
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null); // Estado para almacenar errores
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -20,14 +20,16 @@ export default function HomeScreen({ navigation }) {
           const userDoc = await getDoc(doc(firestore, 'users', user.uid));
           if (userDoc.exists()) {
             const userData = userDoc.data();
-            setUserName(userData.name);
-            setUserRole(userData.role);  // Guardar el rol del usuario
+            setUserName(userData.name || ''); // Manejo de nombre
+            setUserRole(userData.role || ''); // Manejo de rol
           } else {
             console.log('No se encontró el documento del usuario.');
+            setError('Usuario no encontrado'); // Manejo de error
           }
         }
       } catch (error) {
         console.error('Error al obtener los datos del usuario:', error);
+        setError('Error al obtener datos'); // Manejo de error
       } finally {
         setLoading(false);
       }
@@ -52,14 +54,25 @@ export default function HomeScreen({ navigation }) {
     );
   }
 
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text style={styles.errorText}>{error}</Text> {/* Mostrar mensaje de error */}
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.welcomeText}>{t('Welcome')} {userName}!</Text>
       <Text style={styles.infoText}>{t('succeslog')}</Text>
-      <Text style={styles.roleText}>{t('rol')}: {userRole}</Text> {/* Mostrar el rol del usuario */}
+      <Text style={styles.roleText}>{t('rol')}: {userRole}</Text>
       
-      {userRole === 'admin' && (  // Mostrar el botón si el rol es "admin"
-        <TouchableOpacity style={styles.adminButton} onPress={() => console.log('Admin button pressed')}>
+      {userRole === 'admin' && (
+        <TouchableOpacity
+          style={styles.adminButton}
+          onPress={() => navigation.navigate('AdminPanel')} // Navegación al panel admin
+        >
           <Text style={styles.adminButtonText}>Admin Panel</Text>
         </TouchableOpacity>
       )}
@@ -91,7 +104,7 @@ const styles = StyleSheet.create({
     marginBottom: 30,
     textAlign: 'center',
   },
-  roleText: {  // Estilo para el texto del rol
+  roleText: {
     fontSize: 18,
     color: '#333',
     marginBottom: 20,
@@ -109,7 +122,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
   },
-  adminButton: {  // Estilo para el botón de administrador
+  adminButton: {
     backgroundColor: '#EF233C',
     paddingVertical: 10,
     paddingHorizontal: 30,
@@ -121,5 +134,10 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 16,
+    textAlign: 'center',
   },
 });
