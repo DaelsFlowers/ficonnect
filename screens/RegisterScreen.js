@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, TextInput, Text, StyleSheet, TouchableOpacity, Image, Pressable } from 'react-native';
+import { View, TextInput, Text, StyleSheet, TouchableOpacity, Image, Pressable, Picker } from 'react-native';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { setDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { auth, firestore } from '../firebaseConfig'; 
@@ -13,18 +13,19 @@ export default function RegisterScreen({ navigation }) {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
+    const [role, setRole] = useState('user');  // Valor por defecto del rol
     const [errorMessage, setErrorMessage] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     const handleRegister = async () => {
         if (!name || !email || !password || !confirmPassword) {
-            setErrorMessage('Todos los campos son obligatorios');
+            setErrorMessage(t('allInputs'));
             return;
         }
     
         if (password !== confirmPassword) {
-            setErrorMessage('Las contraseñas no coinciden');
+            setErrorMessage(t('notPass'));
             return;
         }
     
@@ -34,6 +35,7 @@ export default function RegisterScreen({ navigation }) {
             await setDoc(doc(firestore, 'users', user.uid), {
                 name,
                 email,
+                role, 
                 createdAt: serverTimestamp(),
             });
             
@@ -104,6 +106,20 @@ export default function RegisterScreen({ navigation }) {
                         </Pressable>
                     </View>
                 </View>
+
+                {/* Dropdown para seleccionar el rol */}
+                <View style={styles.inputContainer}>
+                    <Text style={styles.label}>{t('rol')}</Text>
+                    <Picker
+                        selectedValue={role}
+                        style={styles.picker}
+                        onValueChange={(itemValue) => setRole(itemValue)}
+                    >
+                        <Picker.Item label={t('user1')} value="user" />
+                        <Picker.Item label={t('user2')} value="admin" />
+                    </Picker>
+                </View>
+
                 {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
                 <TouchableOpacity style={styles.button} onPress={handleRegister}>
                     <Text style={styles.buttonText}>{t('Register')}</Text>
@@ -171,6 +187,14 @@ const styles = StyleSheet.create({
         fontSize: 16,
         backgroundColor: '#fff',
         width: '100%',
+    },
+    picker: {
+        height: 45,
+        width: '100%',
+        borderColor: '#ddd',
+        borderWidth: 1,
+        borderRadius: 8,
+        backgroundColor: '#fff',
     },
     passwordWrapper: {
         position: 'relative',

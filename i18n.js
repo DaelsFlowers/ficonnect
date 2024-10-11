@@ -12,15 +12,18 @@ const resources = {
       Email: "Email",
       ENG: "ENG",
       PASS: "Password",
-      DONTACC: " Don't have an account?",
+      DONTACC: "Don't have an account?",
       CreateAccount: "Create Account",
       Name: "Name",
       ConPass: "Confirm password",
       Back: "Back",
       to: "to",
       succeslog: "You are logged in successfully",
-    
-      // Otros textos...
+      rol: "Type User",
+      user1: "User",
+      user2: "Administrator",
+      allInputs: "All fields are required",
+      notPass: "Passwords do not match",
     },
   },
   es: {
@@ -29,7 +32,7 @@ const resources = {
       Register: "Registrarse",
       Welcome: "Bienvenido",
       Logout: "Cerrar sesión",
-      ENG:"ESP",
+      ENG: "ESP",
       Email: "Correo",
       PASS: "Contraseña",
       DONTACC: "¿No tienes una cuenta?",
@@ -38,13 +41,16 @@ const resources = {
       ConPass: "Confirmar contraseña",
       Back: "Regresar",
       to: "a",
-      succeslog: "Te has registrado con exito",
-    
-      
-      // Otros textos...
+      succeslog: "Has iniciado sesión con éxito",
+      rol: "Tipo de Usuario",
+      user1: "Usuario",
+      user2: "Administrador",
+      allInputs: "Todos los campos son obligatorios",
+      notPass: "Las contraseñas no coinciden",
     },
   },
 };
+
 
 i18n.use(initReactI18next).init({
   resources,
