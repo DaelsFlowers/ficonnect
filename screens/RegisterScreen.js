@@ -4,8 +4,11 @@ import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { setDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { auth, firestore } from '../firebaseConfig'; 
 import logo from '../assets/ficonnect_logo2.png';
+import { sendEmailVerification } from "firebase/auth";
+import { useTranslation } from 'react-i18next';
 
 export default function RegisterScreen({ navigation }) {
+    const { t } = useTranslation();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -19,12 +22,12 @@ export default function RegisterScreen({ navigation }) {
             setErrorMessage('Todos los campos son obligatorios');
             return;
         }
-
+    
         if (password !== confirmPassword) {
             setErrorMessage('Las contraseñas no coinciden');
             return;
         }
-
+    
         try {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
@@ -33,22 +36,24 @@ export default function RegisterScreen({ navigation }) {
                 email,
                 createdAt: serverTimestamp(),
             });
-
-            navigation.navigate('Login');
+            
+            await user.sendEmailVerification();
+            navigation.navigate('ConfirmEmail');
         } catch (error) {
             setErrorMessage(error.message);
         }
     };
+    
 
     return (
         <View style={styles.container}>
             <View style={styles.imagenlogo}>
                 <Image source={logo} style={styles.logo} />
             </View>
-            <Text style={styles.title}>CREAR CUENTA</Text>
+            <Text style={styles.title}>{t('CreateAccount')}</Text>
             <View style={styles.form}>
                 <View style={styles.inputContainer}>
-                    <Text style={styles.label}>NOMBRE</Text>
+                    <Text style={styles.label}>{t('Name')}</Text>
                     <TextInput
                         value={name}
                         onChangeText={setName}
@@ -56,7 +61,7 @@ export default function RegisterScreen({ navigation }) {
                     />
                 </View>
                 <View style={styles.inputContainer}>
-                    <Text style={styles.label}>CORREO</Text>
+                    <Text style={styles.label}>{t('Email')}</Text>
                     <TextInput
                         value={email}
                         onChangeText={setEmail}
@@ -66,7 +71,7 @@ export default function RegisterScreen({ navigation }) {
                     />
                 </View>
                 <View style={styles.inputContainer}>
-                    <Text style={styles.label}>CONTRASEÑA</Text>
+                    <Text style={styles.label}>{t('PASS')}</Text>
                     <View style={styles.passwordWrapper}>
                         <TextInput
                             value={password}
@@ -83,7 +88,7 @@ export default function RegisterScreen({ navigation }) {
                     </View>
                 </View>
                 <View style={styles.inputContainer}>
-                    <Text style={styles.label}>CONFIRMAR CONTRASEÑA</Text>
+                    <Text style={styles.label}>{t('ConPass')}</Text>
                     <View style={styles.passwordWrapper}>
                         <TextInput
                             value={confirmPassword}
@@ -101,10 +106,10 @@ export default function RegisterScreen({ navigation }) {
                 </View>
                 {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
                 <TouchableOpacity style={styles.button} onPress={handleRegister}>
-                    <Text style={styles.buttonText}>REGISTRARSE</Text>
+                    <Text style={styles.buttonText}>{t('Register')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.link} onPress={() => navigation.navigate('Login')}>
-                    <Text style={styles.linkText}>VOLVER AL LOGIN</Text>
+                    <Text style={styles.linkText}>{t('Back')} {t('to')} {t('Login')}</Text>
                 </TouchableOpacity>
             </View>
         </View>
