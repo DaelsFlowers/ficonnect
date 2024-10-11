@@ -11,6 +11,8 @@ import { ActivityIndicator, View, Button } from 'react-native';
 import i18n from './i18n';
 import { useTranslation } from 'react-i18next';
 
+import ChatTest from './screens/ChatTest';
+
 const Stack = createNativeStackNavigator();
 
 export default function App() {
@@ -24,7 +26,9 @@ export default function App() {
       if (initializing) setInitializing(false);
     });
     return unsubscribe;
-  }, [initializing]);
+  }, [initializing]); // Cambia esto a [] para que solo se ejecute al montar
+  
+  
 
   const changeLanguage = (lang) => {
     i18n.changeLanguage(lang);
@@ -45,6 +49,7 @@ export default function App() {
           <>
             <Stack.Screen name="ConfirmEmail" component={ConfirmEmailScreen} options={{ headerShown: false }} />
             <Stack.Screen name="Home" component={HomeScreen} options={{ headerShown: false }} />
+            <Stack.Screen name="Chat" component={ChatTest} options={{ headerShown: false }} />
           </>
         ) : (
           <>
