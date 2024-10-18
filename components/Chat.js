@@ -6,6 +6,7 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import styles from '../styles/HomeScreenStyles';
 import { useTranslation } from 'react-i18next';
+import { getStorage, ref, uploadString, getDownloadURL } from "firebase/storage";
 
 const Chat = ({ selectedUserId, setSelectedUserId, setIsChatActive }) => {
     const { t } = useTranslation();
@@ -41,11 +42,21 @@ const Chat = ({ selectedUserId, setSelectedUserId, setIsChatActive }) => {
             senderId: auth.currentUser.uid,
             receiverId: selectedUserId,
             content: message,
-            ...(image && { image: image.uri }),
             timestamp: new Date(),
         };
 
         try {
+            if (image) {
+                // Subir imagen a Firebase Storage
+                const storage = getStorage();
+                const imageRef = ref(storage, `images/${auth.currentUser.uid}/${new Date().getTime()}.jpg`);
+                await uploadString(imageRef, image.uri, 'data_url');
+
+                // Obtener la URL de descarga
+                const downloadURL = await getDownloadURL(imageRef);
+                msg.image = downloadURL; // Agregar la URL al mensaje
+            }
+
             await setDoc(doc(collection(firestore, 'messages')), msg);
             setMessage('');
             setImage(null);

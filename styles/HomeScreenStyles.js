@@ -28,6 +28,7 @@ export default StyleSheet.create({
     chatContainer: {
         position: "absolute",
         maxHeight: "97%",
+        minHeight: "97%",
         bottom: 0, // Asegúrate de que el contenedor esté siempre en la parte inferior
         left: '5%', // Añade un margen a la izquierda
         right: '5%', // Añade un margen a la derecha
@@ -143,10 +144,9 @@ export default StyleSheet.create({
         shadowRadius: 4,
     },
     image: {
-        width: 220,
-        height: 160,
-        borderRadius: 12,
-        marginBottom: 5,
+        width: 200, // o el tamaño que necesites
+        height: 200,
+        resizeMode: 'contain',
     },
     inputContainer: {
         flexDirection: 'row',

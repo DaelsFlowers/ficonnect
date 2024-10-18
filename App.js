@@ -6,11 +6,11 @@ import RegisterScreen from './screens/RegisterScreen';
 import HomeScreen from './screens/HomeScreen';
 import ConfirmEmailScreen from './screens/ConfirmEmailScreen';
 import { onAuthStateChanged } from 'firebase/auth';
-import { auth } from './firebaseConfig';
+import { auth, database } from './firebaseConfig';
+import { ref, set, onDisconnect } from 'firebase/database';
 import { ActivityIndicator, View, Button } from 'react-native';
 import i18n from './i18n';
 import { useTranslation } from 'react-i18next';
-
 import ChatTest from './screens/ChatTest';
 
 const Stack = createNativeStackNavigator();
@@ -24,11 +24,19 @@ export default function App() {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setUser(user);
       if (initializing) setInitializing(false);
+
+      if (user) {
+        const userStatusDatabaseRef = ref(database, `/status/${user.uid}`);
+        // Guardar estado como "online"
+        set(userStatusDatabaseRef, { online: true });
+
+        // Configurar desconexión
+        onDisconnect(userStatusDatabaseRef).set({ online: false });
+      }
     });
-    return unsubscribe;
-  }, [initializing]); // Cambia esto a [] para que solo se ejecute al montar
-  
-  
+
+    return () => unsubscribe();
+  }, [initializing]);
 
   const changeLanguage = (lang) => {
     i18n.changeLanguage(lang);

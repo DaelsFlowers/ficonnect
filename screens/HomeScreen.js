@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, ActivityIndicator, TouchableOpacity, TextInput, Modal, Alert } from 'react-native';
-import { auth, firestore } from '../firebaseConfig';
+import { auth, firestore, database } from '../firebaseConfig'; // Asegúrate de importar el Realtime Database
 import { doc, getDoc, updateDoc, onSnapshot, collection, query } from 'firebase/firestore';
 import { signOut } from 'firebase/auth';
 import { useTranslation } from 'react-i18next';
@@ -8,7 +8,7 @@ import UserList from '../components/UserList';
 import Chat from '../components/Chat';
 import styles from '../styles/HomeScreenStyles';
 import { Ionicons } from '@expo/vector-icons';
-
+import { ref, set, onDisconnect } from 'firebase/database'; // Importar funciones de Realtime Database
 
 export default function HomeScreen({ navigation }) {
   const { t } = useTranslation();
@@ -31,6 +31,12 @@ export default function HomeScreen({ navigation }) {
           if (userDoc.exists()) {
             setUserName(userDoc.data().name);
             await updateDoc(doc(firestore, 'users', user.uid), { online: true });
+
+            // Guardar el estado de conexión en Realtime Database
+            const userRef = ref(database, `users/${user.uid}`);
+            set(userRef, { online: true, name: userDoc.data().name });
+            // Configurar la desconexión
+            onDisconnect(userRef).set({ online: false }); // Establece el estado offline cuando se desconecta
           }
 
           const q = query(collection(firestore, 'users'));
@@ -54,6 +60,12 @@ export default function HomeScreen({ navigation }) {
 
   const handleSignOut = async () => {
     try {
+      const user = auth.currentUser; // Obtén el usuario actual
+      if (user) {
+        // Cambia el estado de "online" a false en Firestore
+        await updateDoc(doc(firestore, 'users', user.uid), { online: false });
+      }
+      
       await signOut(auth);
       navigation.navigate('Login');
     } catch (error) {
