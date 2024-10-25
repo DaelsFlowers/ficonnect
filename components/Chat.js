@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, TextInput, TouchableOpacity, Text, Image, ScrollView, Alert } from 'react-native';
+import { View, TextInput, TouchableOpacity, Text, Image, ScrollView, Alert, Modal } from 'react-native';
 import { auth, firestore } from '../firebaseConfig';
 import { collection, query, orderBy, onSnapshot, setDoc, doc } from 'firebase/firestore';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -7,12 +7,14 @@ import { Ionicons } from '@expo/vector-icons';
 import styles from '../styles/HomeScreenStyles';
 import { useTranslation } from 'react-i18next';
 import { getStorage, ref, uploadString, getDownloadURL } from "firebase/storage";
+import { WebView } from 'react-native-webview'; // Importar WebView
 
 const Chat = ({ selectedUserId, setSelectedUserId, setIsChatActive }) => {
     const { t } = useTranslation();
     const [messages, setMessages] = useState([]);
     const [message, setMessage] = useState('');
     const [image, setImage] = useState(null);
+    const [isVideoCallVisible, setIsVideoCallVisible] = useState(false); // Estado para controlar la visibilidad del modal
     const scrollViewRef = useRef();
 
     useEffect(() => {
@@ -103,7 +105,7 @@ const Chat = ({ selectedUserId, setSelectedUserId, setIsChatActive }) => {
 
                 <TouchableOpacity
                     style={styles.callButton}
-                    onPress={() => Alert.alert("Videollamada", "Iniciando videollamada...")}
+                    onPress={() => setIsVideoCallVisible(true)} // Abrir modal de videollamada
                 >
                     <Ionicons name="videocam" size={24} color="#4A90E2" />
                 </TouchableOpacity>
@@ -133,9 +135,29 @@ const Chat = ({ selectedUserId, setSelectedUserId, setIsChatActive }) => {
                     <Ionicons name="send" size={24} color="#4A90E2" />
                 </TouchableOpacity>
             </View>
+
+            {/* Modal para la videollamada */}
+            <Modal
+                visible={isVideoCallVisible}
+                animationType="slide"
+                onRequestClose={() => setIsVideoCallVisible(false)} // Cerrar modal
+            >
+                <WebView
+                    source={{ uri: 'https://meet.jit.si/ficonnect#config.disableDeepLinking=true&config.enableWelcomePage=false&config.startWithAudioMuted=true&config.startWithVideoMuted=true' }}
+                    style={{ flex: 1 }}
+                    javaScriptEnabled={true}
+                    domStorageEnabled={true}
+                    startInLoadingState={true}
+                />
+                <TouchableOpacity
+                    style={{ position: 'absolute', top: 40, right: 20 }} // Botón para cerrar el modal
+                    onPress={() => setIsVideoCallVisible(false)}
+                >
+                    <Text style={{ fontSize: 18, color: '#fff' }}>Cerrar</Text>
+                </TouchableOpacity>
+            </Modal>
         </View>
     );
-
 };
 
 export default Chat;
