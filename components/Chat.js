@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, TextInput, TouchableOpacity, Text, FlatList, Image, ScrollView, Alert } from 'react-native';
+import { View, TextInput, TouchableOpacity, Text, Image, ScrollView, Alert } from 'react-native';
 import { auth, firestore } from '../firebaseConfig';
 import { collection, query, orderBy, onSnapshot, setDoc, doc } from 'firebase/firestore';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -50,7 +50,13 @@ const Chat = ({ selectedUserId, setSelectedUserId, setIsChatActive }) => {
                 // Subir imagen a Firebase Storage
                 const storage = getStorage();
                 const imageRef = ref(storage, `images/${auth.currentUser.uid}/${new Date().getTime()}.jpg`);
-                await uploadString(imageRef, image.uri, 'data_url');
+
+                // Leer imagen como base64
+                const response = await fetch(image.uri);
+                const blob = await response.blob();
+
+                // Subir la imagen como blob
+                await uploadString(imageRef, await blobToBase64(blob), 'data_url');
 
                 // Obtener la URL de descarga
                 const downloadURL = await getDownloadURL(imageRef);
@@ -66,6 +72,16 @@ const Chat = ({ selectedUserId, setSelectedUserId, setIsChatActive }) => {
         }
     };
 
+    // Función auxiliar para convertir Blob a Base64
+    const blobToBase64 = (blob) => {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(blob);
+            reader.onloadend = () => resolve(reader.result);
+            reader.onerror = (error) => reject(error);
+        });
+    };
+
     const selectImage = () => {
         launchImageLibrary({ mediaType: 'photo' }, (response) => {
             if (response.assets) setImage(response.assets[0]);
@@ -74,15 +90,24 @@ const Chat = ({ selectedUserId, setSelectedUserId, setIsChatActive }) => {
 
     return (
         <View style={styles.chatContainer}>
-            <TouchableOpacity
-                style={styles.backButton}
-                onPress={() => {
-                    setSelectedUserId(null);
-                    setIsChatActive(false);
-                }}
-            >
-                <Ionicons name="arrow-back" size={24} color="#000" />
-            </TouchableOpacity>
+            <View style={styles.headerContainer}>
+                <TouchableOpacity
+                    style={styles.backButton}
+                    onPress={() => {
+                        setSelectedUserId(null);
+                        setIsChatActive(false);
+                    }}
+                >
+                    <Ionicons name="arrow-back" size={24} color="#000" />
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={styles.callButton}
+                    onPress={() => Alert.alert("Videollamada", "Iniciando videollamada...")}
+                >
+                    <Ionicons name="videocam" size={24} color="#4A90E2" />
+                </TouchableOpacity>
+            </View>
             <ScrollView style={styles.messagesContainer} ref={scrollViewRef}>
                 {messages.map((item) => (
                     <View key={item.id} style={item.senderId === auth.currentUser.uid ? styles.sentMessage : styles.receivedMessage}>

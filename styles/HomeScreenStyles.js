@@ -10,6 +10,22 @@ export default StyleSheet.create({
         marginBottom: 15,
         alignItems: 'center',
     },
+    headerContainer: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        backgroundColor: '#fff',
+    },
+
+    backButton: {
+        padding: 5,
+    },
+
+    callButton: {
+        padding: 5,
+    },
     welcomeText: {
         fontSize: 26,
         fontWeight: '700',

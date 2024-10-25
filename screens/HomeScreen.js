@@ -19,7 +19,7 @@ export default function HomeScreen({ navigation }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [userInfo, setUserInfo] = useState({});
-  const [isChatActive, setIsChatActive] = useState(false); // Nuevo estado para controlar la visibilidad del chat
+  const [isChatActive, setIsChatActive] = useState(false); // Controlar la visibilidad del chat
 
   useEffect(() => {
     const fetchUserNameAndUsers = async () => {
@@ -35,8 +35,7 @@ export default function HomeScreen({ navigation }) {
             // Guardar el estado de conexión en Realtime Database
             const userRef = ref(database, `users/${user.uid}`);
             set(userRef, { online: true, name: userDoc.data().name });
-            // Configurar la desconexión
-            onDisconnect(userRef).set({ online: false }); // Establece el estado offline cuando se desconecta
+            onDisconnect(userRef).set({ online: false }); // Desconectar automáticamente
           }
 
           const q = query(collection(firestore, 'users'));
@@ -46,8 +45,8 @@ export default function HomeScreen({ navigation }) {
 
           return () => unsubscribe();
         } catch (error) {
-          console.error("Error fetching user data:", error);
-          Alert.alert("Error", "No se pudo obtener la información del usuario.");
+          console.error('Error fetching user data:', error);
+          Alert.alert('Error', 'No se pudo obtener la información del usuario.');
         } finally {
           setLoading(false);
         }
@@ -60,32 +59,31 @@ export default function HomeScreen({ navigation }) {
 
   const handleSignOut = async () => {
     try {
-      const user = auth.currentUser; // Obtén el usuario actual
+      const user = auth.currentUser;
       if (user) {
-        // Cambia el estado de "online" a false en Firestore
         await updateDoc(doc(firestore, 'users', user.uid), { online: false });
       }
-      
       await signOut(auth);
       navigation.navigate('Login');
     } catch (error) {
-      console.error("Error signing out:", error);
-      Alert.alert("Error", "No se pudo cerrar sesión.");
+      console.error('Error signing out:', error);
+      Alert.alert('Error', 'No se pudo cerrar sesión.');
     }
   };
 
-  const toggleModal = () => {
-    setModalVisible(!modalVisible);
-    if (modalVisible) {
-      setUserInfo({});
-    } else {
-      const user = auth.currentUser;
-      setUserInfo({
-        username: user.displayName || '',
-        userId: user.uid,
-        userRole: 'User',
-      });
-    }
+  const openModal = () => {
+    const user = auth.currentUser;
+    setUserInfo({
+      username: user?.displayName || '',
+      userId: user?.uid,
+      userRole: 'User',
+    });
+    setModalVisible(true);
+  };
+
+  const closeModal = () => {
+    setUserInfo({});
+    setModalVisible(false);
   };
 
   const filteredUsers = users.filter(user =>
@@ -102,17 +100,17 @@ export default function HomeScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      {!isChatActive && ( // Renderiza solo si el chat no está activo
+      {!isChatActive && (
         <View style={styles.header}>
           <Text style={styles.welcomeText}>{t('Hello')}, {userName} 👋</Text>
           <View style={styles.searchContainer}>
             <TextInput
               style={styles.searchInput}
-              placeholder={t('SearchUsers')} // Utiliza la traducción aquí
+              placeholder={t('SearchUsers')}
               value={searchTerm}
               onChangeText={setSearchTerm}
             />
-            <TouchableOpacity onPress={toggleModal}>
+            <TouchableOpacity onPress={openModal}>
               <Ionicons name="settings-outline" size={24} color="#374151" />
             </TouchableOpacity>
           </View>
@@ -120,30 +118,35 @@ export default function HomeScreen({ navigation }) {
       )}
 
       {selectedUserId ? (
-        <Chat selectedUserId={selectedUserId} setSelectedUserId={setSelectedUserId} setIsChatActive={setIsChatActive} /> // Pasar el setter de estado
+        <Chat 
+          selectedUserId={selectedUserId} 
+          setSelectedUserId={setSelectedUserId} 
+          setIsChatActive={setIsChatActive} 
+        />
       ) : (
         <ScrollView style={styles.userListContainer}>
           <UserList users={filteredUsers} setSelectedUserId={setSelectedUserId} />
         </ScrollView>
       )}
 
-      {/* Modal for User Settings */}
       <Modal
         animationType="slide"
         transparent={true}
         visible={modalVisible}
-        onRequestClose={toggleModal}
+        onRequestClose={closeModal}
       >
         <View style={styles.modalView}>
-          <Text style={styles.modalText}>{t('UserInformation')}</Text> {/* Traducción */}
+          <Text style={styles.modalText}>{t('UserInformation')}</Text>
           <Text>Username: {userName}</Text>
           <Text>User ID: {userInfo.userId}</Text>
           <Text>User Role: {userInfo.userRole}</Text>
-          <TouchableOpacity style={styles.closeButton} onPress={toggleModal}>
-            <Text style={styles.closeButtonText}>{t('Close')}</Text> {/* Traducción */}
+
+          <TouchableOpacity style={styles.closeButton} onPress={closeModal}>
+            <Text style={styles.closeButtonText}>{t('Close')}</Text>
           </TouchableOpacity>
+
           <TouchableOpacity style={styles.logoutButton} onPress={handleSignOut}>
-            <Text style={styles.logoutButtonText}>{t('Logout')}</Text> {/* Traducción */}
+            <Text style={styles.logoutButtonText}>{t('Logout')}</Text>
           </TouchableOpacity>
         </View>
       </Modal>
