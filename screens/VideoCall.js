@@ -3,13 +3,14 @@ import { View, Button, StyleSheet } from 'react-native';
 import RtcEngine, { RtcLocalView, RtcRemoteView } from 'react-native-agora';
 
 const VideoCall = ({ route, navigation }) => {
-  const { channelName } = route.params; // Recibe el nombre del canal de la llamada
+  const channelName = 'test1'; // Recibe el nombre del canal de la llamada
+  const token = '007eJxTYOjuL9jRoJrGsenH2u/3j2RVckuwq+ud+PCk/eTbP6qqV/0VGAyMzZPM00xNjVMsUk1MDQ0SjZOM04wNjQxNk80tzJPNdohIpzcEMjIcyXnGwsgAgSA+K0NJanGJIQMDALObIGA=';
   const [engine, setEngine] = useState(null);
   const [remoteUid, setRemoteUid] = useState(null); // Estado para el UID remoto
 
   useEffect(() => {
     const init = async () => {
-      const rtcEngine = await RtcEngine.create('YOUR_APP_ID'); // Reemplaza con tu App ID
+      const rtcEngine = await RtcEngine.create('037b7f553d8e4510a3b3f31215c787c6'); // Reemplaza con tu App ID
       setEngine(rtcEngine);
 
       rtcEngine.enableVideo();
@@ -23,7 +24,7 @@ const VideoCall = ({ route, navigation }) => {
         setRemoteUid(null); // Limpiar el UID remoto si el usuario se desconecta
       });
 
-      await rtcEngine.joinChannel(null, channelName, null, 0); // Unirse al canal
+      await engine.joinChannel(token, channelName, null, 0); // Unirse al canal
     };
 
     init();
